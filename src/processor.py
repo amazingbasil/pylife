@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 def init_field(height=10, width=10, alives=()):
     fld = [[False] * width for _ in range(height)]
-    for alive in alives:
-        fld[alive[0]][alive[1]] = True
+    for x, y in alives:
+        fld[x][y] = True
     return fld
 
 def alive_neighbours(field, x, y):
@@ -17,9 +17,10 @@ def next_step(fld):
     result = [row[:] for row in fld]
     for i in range(len(fld)):
         for j in range(len(fld[1])):
-            if fld[i][j] and len(alive_neighbours(fld, i, j)) not in (2, 3):
+            alive_nb_count = len(alive_neighbours(fld, i, j))
+            if fld[i][j] and alive_nb_count not in (2, 3):
                 result[i][j] = False
-            elif len(alive_neighbours(fld, i, j)) == 3:
+            elif alive_nb_count == 3:
                 result[i][j] = True
     return result
 

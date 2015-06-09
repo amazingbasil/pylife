@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from Tkinter import *
 from processor import *
+from functools import partial
+import threading
 
 
 class LifeGUI:
@@ -12,14 +14,19 @@ class LifeGUI:
         self.field = init_field(height=self.height, width=self.width)
         self.canvas = Canvas(self.root, width=10 * len(self.field[0]), height=10 * len(self.field))
         self.clear()
-        self.next_button = Button(self.root, bg="green", text="step", command=self.step)
+        self.next_button = Button(self.root, bg="blue", text="step", command=self.step)
         self.next_button.pack()
-        self.clear_button = Button(self.root, bg="red", text="clean", command=self.clear)
+        self.clear_button = Button(self.root, bg="yellow", text="clean", command=self.clear)
+        self.clear_button.pack()
+        self.clear_button = Button(self.root, bg="green", text="play", command=partial(self.step, {'repeat': True}))
+        self.clear_button.pack()
+        self.clear_button = Button(self.root, bg="red", text="stop", command=self.stop)
         self.clear_button.pack()
         self.canvas.bind("<Button-1>", self.switch_cell)
         self.canvas.bind("<B1-Motion>", self.switch_cell)
         self.canvas.bind("<ButtonRelease-1>", self.forget)
         self.canvas.pack()
+        self.timer = threading.Timer(0.1, partial(self.step, {'repeat': True}))
         self.root.mainloop()
 
     def switch_cell(self, event):
@@ -33,9 +40,16 @@ class LifeGUI:
     def forget(self, event):
         self.prev_y = self.prev_x = None
 
-    def step(self):
+    def step(self, repeat=False):
         self.field = next_step(self.field)
         self.redraw()
+        if repeat:
+            self.timer = threading.Timer(0.1, partial(self.step, {'repeat': True}))
+            self.timer.start()
+
+    def stop(self):
+        self.timer.cancel()
+        self.timer = None
 
     def clear(self):
         self.field = init_field(height=self.height, width=self.width)
